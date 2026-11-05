@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#123f79" />
+  <title>La ruleta de las progresiones · Sesión 06</title>
+  <style>
+  :root{
+    --navy:#152453;--ink:#22305c;--blue:#276df1;--violet:#7544d4;
+    --pink:#f54c91;--teal:#0aaeb6;--green:#1fa768;--orange:#ff913c;
+    --muted:#657494;--line:#e0e7fa;--white:#fff;
+    --shadow:0 20px 52px rgba(10,15,73,.22);
+  }
+  *{box-sizing:border-box}
+  html,body{min-height:100%;margin:0}
+  html{background:#151e59}
+  body{
+    font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(ellipse 450px 350px at 0% 8%,rgba(0,213,222,.29) 0%,transparent 75%),
+      radial-gradient(ellipse 400px 400px at 100% 90%,rgba(255,185,46,.21) 0%,transparent 77%),
+      radial-gradient(ellipse 540px 370px at 94% 5%,rgba(255,68,162,.22) 0%,transparent 76%),
+      linear-gradient(130deg,#13347d 0%,#44308d 48%,#17417b 100%);
+    background-attachment:fixed;
+  }
+  button{font:inherit;cursor:pointer;transition:transform .18s,filter .18s,box-shadow .18s,border-color .18s}
+  button:focus-visible{outline:4px solid #ffd451;outline-offset:3px}
+  button:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.025)}
+  button:not(:disabled):active{transform:translateY(1px)}
+  button:disabled{opacity:.46;cursor:not-allowed}
+  .page{max-width:1680px;min-height:100vh;margin:0 auto;padding:18px clamp(13px,2vw,32px) 14px;display:flex;flex-direction:column;gap:15px;position:relative}
+  .page::before,.page::after{content:"✦";position:absolute;color:#f8df5e;opacity:.65;font-size:29px;pointer-events:none}
+  .page::before{right:22px;top:108px;transform:rotate(20deg)}
+  .page::after{left:8px;bottom:48px;color:#92f5e2;font-size:24px}
+  .header{display:flex;align-items:center;gap:18px;justify-content:space-between;padding:3px 8px 1px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand-icon{width:61px;height:61px;display:grid;place-items:center;background:linear-gradient(145deg,#ffbd3c,#ff4b92);color:#fff;border:3px solid rgba(255,255,255,.85);border-radius:21px;font-size:35px;box-shadow:0 12px 24px #0d0c4966;transform:rotate(-8deg)}
+  .brand small{display:inline-flex;background:#fbe26b;border-radius:40px;padding:6px 12px;font-size:11.5px;font-weight:900;letter-spacing:.055em;color:#29235f;margin-bottom:6px}
+  h1{font-size:clamp(25px,2.8vw,43px);margin:0;color:#fff;line-height:1.08;letter-spacing:-.045em;text-shadow:0 2px 0 #1a265933}
+  .head-controls{display:flex;align-items:center;gap:12px}
+  .counter{background:linear-gradient(100deg,#ffdc69,#ffad48);border:2px solid #ffe7a6;border-radius:18px;padding:12px 19px;font-weight:900;color:#3c2762;font-size:15px;white-space:nowrap;box-shadow:0 8px 21px #1a18466b}
+  .subbutton{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.63);border-radius:16px;padding:11px 15px;font-weight:900;color:white;backdrop-filter:blur(8px)}
+  .stage{display:grid;grid-template-columns:minmax(345px,.96fr) minmax(450px,1.04fr);gap:19px;align-items:stretch;flex:1;min-height:0}
+  .panel{border:3px solid #fff;border-radius:30px;box-shadow:var(--shadow);overflow:hidden}
+  .wheel-panel{background:
+    radial-gradient(circle at 14% 14%,#ffecba 0px,#ffecba 8px,transparent 9px),
+    radial-gradient(circle at 88% 27%,#fac3e0 0px,#fac3e0 7px,transparent 8px),
+    radial-gradient(circle at 13% 71%,#c1ebea 0px,#c1ebea 6px,transparent 7px),
+    linear-gradient(156deg,#fffefb,#f9f8ff 78%);
+    padding:20px 23px 17px;display:flex;flex-direction:column;align-items:center;gap:9px;
+  }
+  .panel-heading{align-self:stretch;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:#f05f7a;font-weight:900}
+  .panel h2{font-size:clamp(19px,1.8vw,29px);margin:5px 0 0;color:var(--navy);letter-spacing:-.03em}
+  .wheel-count{font-weight:900;font-size:13px;color:#6632ae;background:#eee4ff;padding:10px 13px;border:2px solid #dac5ff;border-radius:99px;white-space:nowrap}
+  .wheel-wrap{width:min(100%,min(51vh,520px));aspect-ratio:1/1;position:relative;display:grid;place-items:center;margin:2px auto 0;isolation:isolate}
+  .wheel-wrap::before{content:"";position:absolute;inset:2%;border-radius:50%;background:linear-gradient(130deg,#ffbc32,#f9539a 35%,#6c45de 65%,#04c5bc);filter:blur(3px);box-shadow:0 18px 27px #261b7152;z-index:0}
+  .wheel-wrap::after{content:"✦";position:absolute;right:-15px;bottom:45px;font-size:35px;color:#fcbf35;text-shadow:0 2px #fa8e5e;pointer-events:none;z-index:1}
+  #wheel{width:96%;height:96%;display:block;border-radius:50%;filter:drop-shadow(0 10px 12px rgba(23,23,92,.23));transition:transform 4.7s cubic-bezier(.16,.78,.12,1);position:relative;z-index:1}
+  .wheel-pointer{position:absolute;z-index:4;top:-7px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:35px solid #ffb53b;filter:drop-shadow(0 4px 2px #723c5466)}
+  .wheel-pointer::before{content:"";position:absolute;left:-9px;top:-34px;width:18px;height:12px;border-radius:3px 3px 0 0;background:#fc4b86}
+  .wheel-label{position:absolute;inset:37.4%;border-radius:50%;background:linear-gradient(145deg,#ffe78c,#ffb73b);border:6px solid #fff;box-shadow:0 3px 0 #c77726,0 9px 19px #1e245d66;display:grid;place-items:center;font-weight:1000;font-size:clamp(20px,2.4vw,32px);color:#43277f;cursor:pointer;z-index:5;text-shadow:0 1px 0 #fff5b7}
+  .wheel-label:not(:disabled):hover{transform:scale(1.06)}
+  .wheel-actions{display:flex;gap:10px;width:100%;justify-content:center;flex-wrap:wrap;margin-top:4px}
+  .primary{background:linear-gradient(115deg,#ffad3f 0%,#ff6671 47%,#f03c9c 100%);color:white;border:0;border-radius:16px;padding:15px 22px;font-size:17px;font-weight:900;box-shadow:0 7px 0 #bd3c72,0 13px 20px #ee447a33;text-shadow:0 1px 1px #6e154025}
+  .primary:not(:disabled):hover{box-shadow:0 8px 0 #bd3c72,0 14px 22px #ee447a44}
+  .secondary{background:#eee9ff;color:#5830b5;border:2px solid #d7cbff;border-radius:16px;padding:13px 19px;font-size:15px;font-weight:900}
+  .helper{color:#687394;font-size:12.6px;text-align:center;line-height:1.45;margin:2px 0 0;max-width:440px;font-weight:600}
+  .helper b{color:#6240bf}
+  .status{font-size:13.5px;font-weight:900;color:#7035ac;text-align:center;min-height:18px;background:#f3edff;border-radius:10px;padding:8px 12px;margin-top:7px}
+  .challenge-panel{background:linear-gradient(150deg,#fffefc,#fff 42%,#f9fbff);padding:20px 21px;display:flex;flex-direction:column;gap:13px;min-height:570px}
+  .challenge-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .challenge-title h2{font-size:clamp(22px,2vw,33px);color:#362369}
+  .badge{display:inline-flex;align-items:center;border-radius:99px;padding:9px 12px;background:#ffe5f0;color:#a92f72;border:2px solid #ffcae0;font-size:12px;font-weight:900;letter-spacing:.04em;white-space:nowrap}
+  .sequence-card{background:linear-gradient(110deg,#ebefff 0%,#f9f3ff 60%,#fff2df 100%);border:2px solid #d4c6fb;border-radius:23px;padding:20px 15px 23px;text-align:center;box-shadow:inset 0 1px 0 #fff;position:relative;overflow:hidden;min-height:146px;display:flex;flex-direction:column;justify-content:center;gap:13px}
+  .sequence-card::before{content:"";position:absolute;width:84px;height:84px;border-radius:50%;right:-31px;top:-42px;background:#f9bed540;pointer-events:none}
+  .question-line{font-size:13.5px;font-weight:900;color:#57408e;text-transform:uppercase;letter-spacing:.055em}
+  .numbers{display:flex;justify-content:center;align-items:center;flex-wrap:nowrap;gap:5px;animation:popIn .37s ease-out both}
+  .num{display:grid;place-items:center;min-width:53px;padding:11px 9px;border:2px solid #b7c4ff;background:white;box-shadow:0 5px 0 #d0d4f5;border-radius:15px;font-size:clamp(25px,2.7vw,42px);color:#2a3678;font-weight:1000;font-variant-numeric:tabular-nums;letter-spacing:-.05em}
+  .num:nth-child(4n+1){background:#dcf7f4;border-color:#72d7cc;box-shadow:0 5px 0 #a7e3d9;color:#146b71}
+  .num:nth-child(4n+3){background:#fff0d3;border-color:#ffcc7b;box-shadow:0 5px 0 #f7dbb0;color:#985021}
+  .comma{font-size:26px;font-weight:900;color:#9a89c6;margin:0 1px}
+  .empty{color:#6a6298;font-weight:900;font-size:clamp(19px,2.1vw,26px);line-height:1.25}
+  .task-prompt{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .task-step{border:2px solid #e2e5f5;background:#f9f9ff;border-radius:16px;padding:12px 10px;font-size:13px;line-height:1.33;color:#435178;font-weight:800;text-align:center}
+  .task-step:nth-child(1){background:#eaf7fb;border-color:#caebf4}
+  .task-step:nth-child(2){background:#f4edff;border-color:#e1d2fb}
+  .task-step:nth-child(3){background:#fff3e4;border-color:#ffe1bf}
+  .task-step strong{display:grid;place-items:center;margin:0 auto 7px;font-size:20px;color:white;background:linear-gradient(140deg,#3195da,#755ee5);height:31px;width:31px;border-radius:50%}
+  .task-step:nth-child(2) strong{background:linear-gradient(130deg,#ad58dc,#744fe0)}
+  .task-step:nth-child(3) strong{background:linear-gradient(130deg,#ffab40,#fa625c)}
+  .choice-wrap{border-top:2px dashed #e1def5;padding-top:12px}
+  .choice-header{font-size:16px;color:#343565;font-weight:900;margin:0 0 9px}
+  .choices{display:flex;gap:11px;flex-wrap:wrap}
+  .vote{flex:1;min-width:135px;border:2px solid #d5e0ec;border-radius:16px;background:white;color:#34536e;padding:14px 9px;font-weight:900;font-size:15px}
+  .vote.yes{background:#effcf3;border-color:#a5e5c1;color:#168451}
+  .vote.no{background:#fff1f3;border-color:#ffb9c2;color:#c04660}
+  .vote.yes.is-selected{border-color:#0c985d;background:#1cad70;color:#fff;box-shadow:0 6px 0 #138054}
+  .vote.no.is-selected{border-color:#ce3d58;background:#e75070;color:#fff;box-shadow:0 6px 0 #ad3450}
+  .solution-btn{width:100%;padding:15px;font-size:17px;margin-top:1px;background:linear-gradient(105deg,#246df0,#7139c4);box-shadow:0 6px 0 #3f3499,0 12px 20px #3c43b83b}
+  .solution-btn:not(:disabled):hover{box-shadow:0 7px 0 #3f3499,0 12px 20px #3c43b84c}
+  .solution{background:linear-gradient(110deg,#f4f7ff,#f7fbff);border:2px solid #d8e0fb;border-radius:17px;padding:14px;display:flex;flex-direction:column;gap:11px;animation:popIn .32s ease-out}
+  .solution[hidden]{display:none}
+  .solution-head{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+  .solution-head strong{font-size:18px;color:#2b2967}
+  .verdict{display:inline-flex;align-items:center;gap:7px;border-radius:40px;padding:8px 12px;font-size:13px;font-weight:900}
+  .verdict.yes{color:#147446;background:#d8f8e5;border:1px solid #9be9be}
+  .verdict.no{color:#ad4260;background:#ffeaef;border:1px solid #fab9c6}
+  .difference-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .diff-pill{background:white;border:2px solid #d3dcfc;border-radius:12px;text-align:center;padding:10px 4px;font-size:clamp(11.7px,1.05vw,16px);font-weight:900;color:#333f88;font-variant-numeric:tabular-nums}
+  .key-facts{display:flex;gap:9px;flex-wrap:wrap}
+  .fact{padding:10px 12px;border-radius:10px;background:#e3eaff;color:#3444a1;font-weight:900;font-size:14px}
+  .reason{margin:0;line-height:1.44;font-size:14.5px;color:#374574}
+  .feedback{font-size:13.5px;font-weight:900;border-radius:11px;padding:10px 12px;background:#e4e8ff;color:#4f42a4}
+  .feedback.correct{background:#def9eb;color:#168051}
+  .feedback.wrong{background:#fff0da;color:#9e5b15}
+  .placeholder[hidden]{display:none}
+  .placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;color:#6f6a93;border:2px dashed #d8ccf3;border-radius:16px;background:linear-gradient(165deg,#fff,#faf6ff);padding:17px}
+  .placeholder strong{color:#5540a0;font-size:17px}
+  .placeholder-icon{font-size:44px}
+  .footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:#e7eaff;font-weight:700;padding:1px 7px 0}
+  .footer b{color:#ffe26e}
+  .help{display:block;font-size:12px;color:#74728c;margin-top:3px;font-weight:700}
+  @keyframes popIn{0%{opacity:0;transform:scale(.96) translateY(6px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+  @media(max-width:1030px){.stage{grid-template-columns:1fr}.wheel-wrap{width:min(66vw,450px)}.challenge-panel{min-height:480px}.page{padding:15px}.wheel-panel{padding:18px}.challenge-panel{padding:18px}}
+  @media(max-width:590px){.header{gap:10px}.brand-icon{width:45px;height:45px;border-radius:15px;font-size:27px}.brand small{font-size:10px}.header h1{font-size:24px}.head-controls{width:100%;justify-content:space-between}.task-prompt{grid-template-columns:1fr}.task-step{display:flex;text-align:left;align-items:center;gap:9px;padding:9px}.task-step strong{margin:0}.difference-grid{grid-template-columns:repeat(2,1fr)}.num{font-size:clamp(21px,5vw,28px);padding:7px 5px;min-width:38px}.comma{font-size:18px}.sequence-card{padding:15px 7px;min-height:120px}.challenge-panel{padding:13px}.wheel-wrap{width:min(88vw,380px)}.wheel-actions{width:100%}.wheel-actions button{flex:1}.panel h2{font-size:21px}.wheel-count{font-size:11px}.challenge-title{flex-wrap:wrap}}
+  @media(prefers-reduced-motion:reduce){#wheel{transition-duration:.2s!important}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">🎡</div>
+        <div>
+          <small>MATEMÁTICA · 2.° DE SECUNDARIA · SESIÓN 06</small>
+          <h1>La ruleta de las progresiones</h1>
+        </div>
+      </div>
+      <div class="head-controls">
+        <div class="counter" id="counter">0 de 12 retos</div>
+        <button class="subbutton" id="fullscreenBtn" type="button" title="Mostrar a pantalla completa">⛶ Pantalla completa</button>
+      </div>
+    </header>
+
+    <main class="stage">
+      <section class="panel wheel-panel" aria-label="Ruleta interactiva">
+        <div class="panel-heading">
+          <div><div class="eyebrow">✦ Misión: descubrir patrones</div><h2>¡Gira y descubre! 🎉</h2></div>
+          <div class="wheel-count" id="remaining">12 disponibles</div>
+        </div>
+        <div class="wheel-wrap">
+          <div class="wheel-pointer" aria-hidden="true"></div>
+          <canvas id="wheel" width="650" height="650" aria-label="Ruleta con doce retos numerados"></canvas>
+          <button class="wheel-label" id="centerSpin" type="button" aria-label="Girar ruleta">¡GIRA!</button>
+        </div>
+        <div class="wheel-actions">
+          <button class="primary" type="button" id="spinBtn">🎲 ¡Girar la ruleta!</button>
+          <button class="secondary" type="button" id="resetBtn">↻ Reiniciar</button>
+        </div>
+        <p class="status" id="status" aria-live="polite">✨ ¡Primero piensa, luego comprueba!</p>
+        <p class="helper">Los retos no se repiten. Cada estudiante desarrolla <b>dos retos</b> en su ficha: primer término, diferencias, clasificación y justificación.</p>
+      </section>
+
+      <section class="panel challenge-panel" aria-label="Reto matemático y comprobación">
+        <div class="challenge-title">
+          <h2 id="challengeHeading">🎯 Reto por descubrir</h2>
+          <span class="badge" id="challengeNumber">ESPERANDO GIRO</span>
+        </div>
+        <div class="sequence-card">
+          <div class="question-line" id="sequenceLabel">¡Una nueva sucesión te espera!</div>
+          <div id="sequence" class="empty" aria-live="polite">¡Haz girar la ruleta para comenzar!</div>
+        </div>
+        <div class="task-prompt">
+          <div class="task-step"><strong>1</strong> Identifica el primer término.</div>
+          <div class="task-step"><strong>2</strong> Calcula todas las diferencias.</div>
+          <div class="task-step"><strong>3</strong> Decide y justifica si es aritmética.</div>
+        </div>
+        <div class="choice-wrap">
+          <p class="choice-header">🙋 ¿Qué piensa la clase? <span class="help">Elige una opción o usa tus tarjetas verde y roja.</span></p>
+          <div class="choices">
+            <button class="vote yes" id="yesBtn" type="button" disabled>✅ Sí, es aritmética</button>
+            <button class="vote no" id="noBtn" type="button" disabled>❌ No es aritmética</button>
+          </div>
+        </div>
+        <button class="primary solution-btn" id="checkBtn" type="button" disabled>🔍 ¡Revelar comprobación!</button>
+        <div class="solution" id="solution" hidden aria-live="polite">
+          <div class="solution-head"><strong>Comprobamos las diferencias</strong><span class="verdict" id="verdict"></span></div>
+          <div class="difference-grid" id="diffGrid"></div>
+          <div class="key-facts" id="facts"></div>
+          <p class="reason" id="reason"></p>
+          <div class="feedback" id="feedback"></div>
+        </div>
+        <div class="placeholder" id="placeholder">
+          <div class="placeholder-icon" aria-hidden="true">📝</div>
+          <strong>¡Matemáticos en acción!</strong>
+          <span>Observa, calcula y justifica en tu ficha antes de revelar la solución.</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span><b>Sesión N.° 06</b> · Progresiones aritméticas</span>
+      <span>Regla: es aritmética únicamente si <b>todas</b> las diferencias consecutivas son iguales.</span>
+      <span>Recurso local, funciona sin internet.</span>
+    </footer>
+  </div>
+  <script>
+    "use strict";
+    // Cada sucesión contiene cinco términos. Hay seis progresiones aritméticas
+    // y seis sucesiones no aritméticas; no se repiten hasta reiniciar la ruleta.
+    const challenges = [
+      {id:1, values:[5,9,13,17,21]},
+      {id:2, values:[30,25,20,15,10]},
+      {id:3, values:[3,6,12,24,48]},
+      {id:4, values:[7,11,15,20,24]},
+      {id:5, values:[8,13,18,23,28]},
+      {id:6, values:[42,36,30,24,18]},
+      {id:7, values:[2,5,10,17,26]},
+      {id:8, values:[4,11,18,25,32]},
+      {id:9, values:[2,4,8,16,32]},
+      {id:10,values:[50,43,36,29,22]},
+      {id:11,values:[10,15,21,28,36]},
+      {id:12,values:[45,40,34,29,23]}
+    ];
+    const $ = (id)=>document.getElementById(id);
+    const wheel=$('wheel'), ctx=wheel.getContext('2d');
+    const spinBtn=$('spinBtn'), checkBtn=$('checkBtn'),resetBtn=$('resetBtn');
+    const yesBtn=$('yesBtn'),noBtn=$('noBtn');
+    const palette=['#fd4d85','#f88743','#ffba3d','#69c956','#09b8b8','#308eeb','#6f61e8','#a957d0','#ed5aac','#ff8657','#22bf87','#5572ec'];
+    const remaining=new Set(challenges.map(x=>x.id));
+    let selected=null,choice=null,rotation=0,spinning=false,revealed=false,spinTimer=null;
+    function differences(vals){return vals.slice(1).map((v,i)=>v-vals[i]);}
+    function isArithmetic(ds){return ds.every(v=>v===ds[0]);}
+    function signed(v){return v>0?'+'+v:String(v);}
+    function drawWheel(){
+      const dpi=Math.min(2,window.devicePixelRatio||1),size=650;
+      wheel.width=Math.round(size*dpi);wheel.height=Math.round(size*dpi);
+      ctx.setTransform(dpi,0,0,dpi,0,0);ctx.clearRect(0,0,size,size);
+      const cx=size/2,cy=size/2,r=312,step=2*Math.PI/12;
+      challenges.forEach((c,i)=>{
+        const start=-Math.PI/2+i*step,end=start+step;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();
+        ctx.fillStyle=remaining.has(c.id)?palette[i]:'#b5c3cf';ctx.fill();
+        ctx.strokeStyle='#ffffff';ctx.lineWidth=6;ctx.stroke();
+        const angle=start+step/2,x=cx+Math.cos(angle)*214,y=cy+Math.sin(angle)*214;
+        ctx.font='900 38px Trebuchet MS, Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(30,22,68,.2)';ctx.shadowBlur=3;
+        ctx.fillStyle=remaining.has(c.id)?'#ffffff':'#eff4f8';ctx.fillText(String(c.id).padStart(2,'0'),x,y);ctx.shadowBlur=0;
+      });
+      ctx.beginPath();ctx.arc(cx,cy,318,0,2*Math.PI);ctx.strokeStyle='#fff4cf';ctx.lineWidth=12;ctx.stroke();
+    }
+    function choose(value){
+      if(spinning||!selected||revealed)return;
+      choice=value;
+      yesBtn.classList.toggle('is-selected',value===true);
+      noBtn.classList.toggle('is-selected',value===false);
+      yesBtn.setAttribute('aria-pressed',String(value===true));
+      noBtn.setAttribute('aria-pressed',String(value===false));
+    }
+    function updateCounter(){
+      const completed=12-remaining.size;
+      $('counter').textContent=completed+' de 12 retos';
+      $('remaining').textContent=remaining.size+' disponibles';
+    }
+    function showSequence(values){
+      const container=$('sequence');container.className='numbers';container.textContent='';
+      values.forEach((n,i)=>{
+        if(i){const comma=document.createElement('span');comma.className='comma';comma.textContent='·';container.appendChild(comma);}
+        const box=document.createElement('span');box.className='num';box.textContent=n;container.appendChild(box);
+      });
+    }
+    function clearQuestion(){
+      selected=null;choice=null;revealed=false;
+      yesBtn.disabled=true;noBtn.disabled=true;checkBtn.disabled=true;checkBtn.textContent='🔍 ¡Revelar comprobación!';
+      yesBtn.classList.remove('is-selected');noBtn.classList.remove('is-selected');
+      yesBtn.setAttribute('aria-pressed','false');noBtn.setAttribute('aria-pressed','false');
+      $('solution').hidden=true;$('placeholder').hidden=false;
+    }
+    function spin(){
+      if(spinning||remaining.size===0)return;
+      spinning=true;clearQuestion();
+      spinBtn.disabled=true;$('centerSpin').disabled=true;resetBtn.disabled=true;
+      $('status').textContent='La ruleta está girando…';
+      $('challengeHeading').textContent='🎉 ¡A descubrir!';
+      $('challengeNumber').textContent='GIRANDO…';
+      $('sequenceLabel').textContent='Esperamos la sucesión';
+      $('sequence').className='empty';$('sequence').textContent='● ● ● ● ●';
+      const ids=[...remaining],id=ids[Math.floor(Math.random()*ids.length)];
+      const index=challenges.findIndex(c=>c.id===id),target=-(index+.5)*30;
+      const normalize=v=>((v%360)+360)%360;
+      const delta=((normalize(target)-normalize(rotation)+360)%360)+(5+Math.floor(Math.random()*2))*360;
+      rotation+=delta;
+      const finish=()=>{
+        if(!spinning)return;
+        spinning=false;
+        selected=challenges[index];remaining.delete(id);
+        drawWheel();updateCounter();showSequence(selected.values);
+        $('challengeHeading').textContent='🎯 ¡Reto seleccionado!';
+        $('challengeNumber').textContent='RETO N.° '+String(id).padStart(2,'0');
+        $('sequenceLabel').textContent='🔎 Observa la sucesión y responde';
+        yesBtn.disabled=false;noBtn.disabled=false;checkBtn.disabled=false;
+        spinBtn.disabled=remaining.size===0;$('centerSpin').disabled=remaining.size===0;resetBtn.disabled=false;
+        $('status').textContent='Ahora los estudiantes calculan y justifican en su ficha.';
+        if(remaining.size===0)spinBtn.textContent='🏆 ¡12 retos completados!';
+      };
+      const duration=window.matchMedia('(prefers-reduced-motion: reduce)').matches?250:4700;
+      wheel.style.transitionDuration=duration+'ms';
+      // Forzamos un fotograma para que el navegador anime incluso el primer giro.
+      requestAnimationFrame(()=>{wheel.style.transform=`rotate(${rotation}deg)`;});
+      clearTimeout(spinTimer);spinTimer=setTimeout(finish,duration+100);
+    }
+    function reveal(){
+      if(!selected||spinning||revealed)return;
+      revealed=true;checkBtn.disabled=true;checkBtn.textContent='✅ ¡Comprobación revelada!';
+      yesBtn.disabled=true;noBtn.disabled=true;
+      const v=selected.values,d=differences(v),pa=isArithmetic(d);
+      const grid=$('diffGrid');grid.textContent='';
+      d.forEach((val,i)=>{
+        const el=document.createElement('div');el.className='diff-pill';
+        el.textContent=v[i+1]+' − '+v[i]+' = '+signed(val);grid.appendChild(el);
+      });
+      const facts=$('facts');facts.textContent='';
+      const a1=document.createElement('span');a1.className='fact';a1.textContent='Primer término: '+v[0];facts.appendChild(a1);
+      const r=document.createElement('span');r.className='fact';r.textContent=pa?'Razón: '+signed(d[0]):'Razón constante: no existe';facts.appendChild(r);
+      const verdict=$('verdict');verdict.className='verdict '+(pa?'yes':'no');
+      verdict.textContent=pa?'✓ Sí es aritmética':'❌ No es aritmética';
+      $('reason').textContent=pa
+        ?'Todas las diferencias consecutivas son '+signed(d[0])+'. Como son iguales, la sucesión es una progresión aritmética.'
+        :'Las diferencias son '+d.map(signed).join(', ')+'. No son todas iguales; por eso la sucesión no es una progresión aritmética, aunque sus términos puedan aumentar o disminuir.';
+      const feedback=$('feedback');feedback.className='feedback';
+      if(choice===null){feedback.textContent='Comprobación realizada. Compara este resultado con las tarjetas de la clase.';}
+      else if(choice===pa){feedback.classList.add('correct');feedback.textContent='¡Bien! La clasificación de la clase fue correcta.';}
+      else{feedback.classList.add('wrong');feedback.textContent='Revisemos la decisión: compara todas las diferencias, no solamente la primera.';}
+      $('placeholder').hidden=true;$('solution').hidden=false;
+      $('status').textContent=remaining.size?'Puedes girar otra vez para obtener un reto diferente.':'¡Los 12 retos están completos! Puedes reiniciar la ruleta.';
+    }
+    function reset(){
+      if(spinning)return;
+      remaining.clear();challenges.forEach(c=>remaining.add(c.id));
+      rotation=0;wheel.style.transition='none';wheel.style.transform='rotate(0deg)';
+      // Restaurar la transición después de reiniciar la posición sin animación.
+      requestAnimationFrame(()=>requestAnimationFrame(()=>wheel.style.transition=''));
+      clearQuestion();drawWheel();updateCounter();
+      spinBtn.disabled=false;$('centerSpin').disabled=false;spinBtn.textContent='🎲 ¡Girar la ruleta!';
+      $('challengeHeading').textContent='🎯 Reto por descubrir';$('challengeNumber').textContent='ESPERANDO GIRO';
+      $('sequenceLabel').textContent='¡Una nueva sucesión te espera!';
+      $('sequence').className='empty';$('sequence').textContent='¡Haz girar la ruleta para comenzar!';
+      $('status').textContent='✨ ¡Primero piensa, luego comprueba!';
+    }
+    spinBtn.addEventListener('click',spin);
+    $('centerSpin').addEventListener('click',spin);
+    checkBtn.addEventListener('click',reveal);
+    yesBtn.addEventListener('click',()=>choose(true));
+    noBtn.addEventListener('click',()=>choose(false));
+    resetBtn.addEventListener('click',()=>{if(remaining.size===12 || confirm('¿Reiniciar la ruleta y volver a habilitar los 12 retos?'))reset();});
+    $('fullscreenBtn').addEventListener('click',async()=>{
+      try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}
+      catch(e){$('status').textContent='Para ampliar la presentación, utiliza F11 en el navegador.';}
+    });
+    document.addEventListener('fullscreenchange',()=>{$('fullscreenBtn').textContent=document.fullscreenElement?'✕ Salir de pantalla completa':'⛶ Pantalla completa';});
+    window.addEventListener('resize',drawWheel);
+    drawWheel();updateCounter();
+  </script>
+</body>
+</html>
