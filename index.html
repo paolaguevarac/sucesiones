@@ -187,6 +187,16 @@
   .modal-pop{background:linear-gradient(115deg,#188cc7,#6952c8);color:#fff}
   @media(max-width:700px){.modal{padding:8px}.modal-sheet{padding:17px;gap:12px}.modal-grid{grid-template-columns:1fr}.modal-student{padding:12px}.modal-student b{font-size:21px}.modal-student small{font-size:12px}.modal-numbers span{min-width:52px;padding:7px 9px}}
 
+
+  /* Versión limpia: se priorizan la ruleta, la sucesión y los cuatro nombres. */
+  .status{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+  .challenge-panel{min-height:440px;gap:16px;justify-content:flex-start}
+  .sequence-card{min-height:178px}
+  .solution-btn{width:auto;align-self:center;min-width:175px;padding:12px 25px;font-size:15px}
+  .solution{margin-top:4px}
+  .modal-sheet{gap:14px}
+  .wheel-panel{justify-content:center}
+  .footer{justify-content:center;opacity:.7}
   </style>
 </head>
 <body>
@@ -221,8 +231,7 @@
           <button class="secondary" type="button" id="resetBtn">↻ Reiniciar sorteo</button>
           <button class="results-window-btn" type="button" id="popoutBtn">📺 Abrir ventana de resultados</button>
         </div>
-        <p class="status" id="status" aria-live="polite">✨ ¡Primero piensa, luego comprueba!</p>
-        <p class="helper">📺 <b>Abre la ventana de resultados</b> para proyectar la sucesión y los cuatro nombres por separado. 🎯 <b>15 giros × 4 estudiantes = 60 participaciones.</b> Cada estudiante saldrá exactamente <b>4 veces</b>, con cuatro retos distintos. Los seleccionados escriben cada reto en su ficha.</p>
+        <p class="status" id="status" aria-live="polite">Lista para girar.</p>
         <details class="roster" id="rosterDetails">
           <summary>👥 Ver participación de los 15 estudiantes (0 a 4)</summary>
           <div class="roster-grid" id="rosterGrid"></div>
@@ -235,60 +244,39 @@
         <div class="challenge-title">
           <h2 id="challengeHeading">🎯 Reto por descubrir</h2>
           <span class="badge" id="challengeNumber">ESPERANDO GIRO</span>
-          <button class="results-quick-btn" type="button" id="showResultsBtn" disabled>🪟 Ver resultado grande</button>
+          <button class="results-quick-btn" type="button" id="showResultsBtn" disabled>Ver resultado</button>
         </div>
         <div class="students-panel" aria-label="Estudiantes elegidos en este giro">
           <div class="students-head"><strong>🎉 ¡Participan estos 4 estudiantes!</strong><small id="participationCounter">0 de 60 participaciones</small></div>
-          <div id="studentGrid" class="students-grid" aria-live="polite"><div class="no-students" style="grid-column:1/-1">Gira la ruleta para seleccionar el reto y cuatro nombres al azar.</div></div>
+          <div id="studentGrid" class="students-grid" aria-live="polite"><div class="no-students" style="grid-column:1/-1">Aún no hay estudiantes seleccionados.</div></div>
         </div>
         <div class="sequence-card">
-          <div class="question-line" id="sequenceLabel">¡Una nueva sucesión te espera!</div>
+          <div class="question-line" id="sequenceLabel">Sucesión</div>
           <div id="sequence" class="empty" aria-live="polite">¡Haz girar la ruleta para comenzar!</div>
         </div>
-        <div class="task-prompt">
-          <div class="task-step"><strong>1</strong> Identifica el primer término.</div>
-          <div class="task-step"><strong>2</strong> Calcula todas las diferencias.</div>
-          <div class="task-step"><strong>3</strong> Decide y justifica si es aritmética.</div>
-        </div>
-        <div class="choice-wrap">
-          <p class="choice-header">🙋 ¿Qué piensa la clase? <span class="help">Elige una opción o usa tus tarjetas verde y roja.</span></p>
-          <div class="choices">
-            <button class="vote yes" id="yesBtn" type="button" disabled>✅ Sí, es aritmética</button>
-            <button class="vote no" id="noBtn" type="button" disabled>❌ No es aritmética</button>
-          </div>
-        </div>
-        <button class="primary solution-btn" id="checkBtn" type="button" disabled>🔍 ¡Revelar comprobación!</button>
+        <button class="primary solution-btn" id="checkBtn" type="button" disabled>Comprobar</button>
         <div class="solution" id="solution" hidden aria-live="polite">
           <div class="solution-head"><strong>Comprobamos las diferencias</strong><span class="verdict" id="verdict"></span></div>
           <div class="difference-grid" id="diffGrid"></div>
           <div class="key-facts" id="facts"></div>
           <p class="reason" id="reason"></p>
-          <div class="feedback" id="feedback"></div>
-        </div>
-        <div class="placeholder" id="placeholder">
-          <div class="placeholder-icon" aria-hidden="true">📝</div>
-          <strong>¡Matemáticos en acción!</strong>
-          <span>Los cuatro estudiantes seleccionados anotan el reto en su casilla correspondiente antes de comprobar.</span>
+          
         </div>
       </section>
     </main>
 
-    <footer class="footer">
-      <span><b>Sesión N.° 06</b> · Progresiones aritméticas</span>
-      <span>Regla: es aritmética únicamente si <b>todas</b> las diferencias consecutivas son iguales.</span>
-      <span>Selección aleatoria equilibrada · Funciona sin internet.</span>
-    </footer>
+    <footer class="footer"><span>Matemática · Sesión 06</span></footer>
   </div>
 
   <!-- Resultado de cada giro: aparece automáticamente, SIN revelar la solución. -->
   <div class="modal" id="resultsModal" role="dialog" aria-modal="true" aria-label="Estudiantes y sucesión seleccionada" aria-labelledby="modalTitle" hidden>
     <div class="modal-sheet">
-      <div class="modal-heading"><div class="modal-brand" id="modalTitle">🎉 ¡Los elegidos del reto!</div><div class="modal-id" id="modalReto">RETO 01</div></div>
-      <div class="modal-seq-label">🔢 SUCESIÓN QUE DEBEN RESOLVER</div>
+      <div class="modal-heading"><div class="modal-brand" id="modalTitle">Resultado del giro</div><div class="modal-id" id="modalReto">RETO 01</div></div>
+      <div class="modal-seq-label">SUCESIÓN</div>
       <div class="modal-numbers" id="modalNumbers"></div>
-      <div class="modal-seq-label">👥 LOS CUATRO ESTUDIANTES SELECCIONADOS</div>
+      <div class="modal-seq-label">ESTUDIANTES</div>
       <div class="modal-grid" id="modalStudents"></div>
-      <div class="modal-directions">✏️ Registren las cuatro restas en la casilla indicada de su ficha. Después justifiquen.</div>
+      
       <div class="modal-actions">
         <button class="modal-close" id="closeModalBtn" type="button">✓ Volver a la ruleta</button>
         <button class="modal-pop" id="popModalBtn" type="button">📺 Mostrar en ventana aparte</button>
@@ -326,10 +314,9 @@
     const $=(id)=>document.getElementById(id);
     const wheel=$('wheel'),ctx=wheel.getContext('2d');
     const spinBtn=$('spinBtn'),checkBtn=$('checkBtn'),resetBtn=$('resetBtn');
-    const yesBtn=$('yesBtn'),noBtn=$('noBtn');
     const studentPalette=['#14b8a6','#fb7185','#8b5cf6','#f59e0b'];
     const palette=['#fd4d85','#f88743','#ffba3d','#69c956','#09b8b8','#308eeb','#6f61e8','#a957d0','#ed5aac','#ff8657','#22bf87','#5572ec','#f4aa2d','#8ac448','#d451bf'];
-    let plan=[],completed=0,studentCounts=new Map(),history=[],selected=null,choice=null,rotation=0,spinning=false,revealed=false,spinTimer=null;
+    let plan=[],completed=0,studentCounts=new Map(),history=[],selected=null,rotation=0,spinning=false,revealed=false,spinTimer=null;
     let resultWindow=null; // Se abre directamente con un clic; no necesita segundo archivo.
     let lastAssigned=[];
     function shuffle(items){
@@ -390,7 +377,7 @@
       const grid=$('studentGrid');grid.textContent='';
       if(!assignments||!assignments.length){
         const hint=document.createElement('div');hint.className='no-students';hint.style.gridColumn='1/-1';
-        hint.textContent='Gira la ruleta para seleccionar el reto y cuatro nombres al azar.';
+        hint.textContent='Aún no hay estudiantes seleccionados.';
         grid.appendChild(hint);return;
       }
       assignments.forEach((entry,i)=>{
@@ -439,9 +426,9 @@
       #projectWaiting{text-align:center;font-size:clamp(30px,5vw,65px);font-weight:1000;padding:15vh 0}#projectMain[hidden],#projectWaiting[hidden]{display:none}
       @media(max-width:700px){.student-grid{grid-template-columns:1fr}.student{padding:14px}.student b{font-size:25px}}
       </style></head><body>
-      <header><h1>🎉 ¡Reto seleccionado!</h1><div class="tag" id="projectTag">SESIÓN 06</div></header>
-      <div id="projectWaiting">🎡 Gira la ruleta en la pantalla principal para ver los resultados aquí.</div>
-      <div id="projectMain" hidden><div class="box"><div class="section">🔢 SUCESIÓN DEL RETO</div><div id="projectNumbers"></div></div><div class="box"><div class="section">👥 ESTUDIANTES SELECCIONADOS</div><div class="student-grid" id="projectStudents"></div></div><div class="box" id="projectAnswer" hidden></div><div class="info">✏️ Calcula las diferencias, indica si es aritmética y justifica.</div></div>
+      <header><h1>Resultado</h1><div class="tag" id="projectTag">SESIÓN 06</div></header>
+      <div id="projectWaiting">Esperando giro…</div>
+      <div id="projectMain" hidden><div class="box"><div class="section">SUCESIÓN</div><div id="projectNumbers"></div></div><div class="box"><div class="section">ESTUDIANTES</div><div class="student-grid" id="projectStudents"></div></div><div class="box" id="projectAnswer" hidden></div></div>
       <div class="controls"><button onclick="document.documentElement.requestFullscreen?.()">⛶ Pantalla completa</button><button onclick="window.close()">✕ Cerrar ventana</button></div>
       </body></html>`;
     }
@@ -449,10 +436,10 @@
       if(resultWindow&&!resultWindow.closed){resultWindow.focus();updateResultsWindow();closeResultsModal();return;}
       try{
         resultWindow=window.open('','ProgresionesResultados','width=1260,height=850,resizable=yes,scrollbars=yes');
-        if(!resultWindow){$('status').textContent='⚠ Permite ventanas emergentes para este archivo o usa «Ver resultado grande».';return;}
+        if(!resultWindow){showResultsModal();return;}
         resultWindow.document.open();resultWindow.document.write(makeProjectorHTML());resultWindow.document.close();
         updateResultsWindow();closeResultsModal();
-      }catch(e){$('status').textContent='⚠ No se pudo abrir la ventana. Usa «Ver resultado grande».';}
+      }catch(e){showResultsModal();}
     }
     function updateResultsWindow(){
       if(!resultWindow||resultWindow.closed)return;
@@ -501,28 +488,17 @@
         const box=document.createElement('span');box.className='num';box.textContent=n;container.appendChild(box);
       });
     }
-    function choose(value){
-      if(spinning||!selected||revealed)return;
-      choice=value;
-      yesBtn.classList.toggle('is-selected',value===true);
-      noBtn.classList.toggle('is-selected',value===false);
-      yesBtn.setAttribute('aria-pressed',String(value===true));
-      noBtn.setAttribute('aria-pressed',String(value===false));
-    }
     function clearQuestion(){
-      selected=null;choice=null;revealed=false;
-      yesBtn.disabled=true;noBtn.disabled=true;checkBtn.disabled=true;
-      checkBtn.textContent='🔍 ¡Revelar comprobación!';
-      yesBtn.classList.remove('is-selected');noBtn.classList.remove('is-selected');
-      yesBtn.setAttribute('aria-pressed','false');noBtn.setAttribute('aria-pressed','false');
-      $('solution').hidden=true;$('placeholder').hidden=false;
+      selected=null;revealed=false;checkBtn.disabled=true;
+      checkBtn.textContent='Comprobar';
+      $('solution').hidden=true;
       $('showResultsBtn').disabled=true;
     }
     function spin(){
       if(spinning||completed>=CHALLENGE_COUNT)return;
       spinning=true;clearQuestion();closeResultsModal();renderStudents([]);
       spinBtn.disabled=true;$('centerSpin').disabled=true;resetBtn.disabled=true;
-      $('status').textContent='🎡 Girando… ¡Sorteamos el reto y los cuatro estudiantes!';
+      $('status').textContent='Girando…';
       $('challengeHeading').textContent='🎉 ¡A descubrir!';
       $('challengeNumber').textContent='GIRANDO…';
       $('sequenceLabel').textContent='Esperamos la sucesión';
@@ -544,16 +520,16 @@
         drawWheel();updateCounter();renderStudents(assigned);showSequence(selected.values);
         $('challengeHeading').textContent='🎯 ¡Reto seleccionado!';
         $('challengeNumber').textContent='RETO N.° '+String(round.id).padStart(2,'0');
-        $('sequenceLabel').textContent='🔎 Calculen las diferencias y justifiquen';
-        yesBtn.disabled=false;noBtn.disabled=false;checkBtn.disabled=false;$('showResultsBtn').disabled=false;
+        $('sequenceLabel').textContent='Sucesión';
+        checkBtn.disabled=false;$('showResultsBtn').disabled=false;
         spinBtn.disabled=completed>=CHALLENGE_COUNT;$('centerSpin').disabled=completed>=CHALLENGE_COUNT;
         resetBtn.disabled=false;
-        $('status').textContent='📝 Los cuatro seleccionados resuelven en la casilla indicada de su ficha.';
+        $('status').textContent='Reto seleccionado.';
         updateResultsWindow();
         if(!resultWindow||resultWindow.closed)showResultsModal();
         if(completed>=CHALLENGE_COUNT){
           spinBtn.textContent='🏆 ¡Todos completaron 4 retos!';
-          $('status').textContent='🏆 ¡15 giros realizados! Todos han sido elegidos 4 veces. Puedes revelar la última comprobación.';
+          $('status').textContent='15 giros completados.';
         }
       };
       const duration=window.matchMedia('(prefers-reduced-motion: reduce)').matches?250:4700;
@@ -563,8 +539,7 @@
     }
     function reveal(){
       if(!selected||spinning||revealed)return;
-      revealed=true;checkBtn.disabled=true;checkBtn.textContent='✅ ¡Comprobación revelada!';
-      yesBtn.disabled=true;noBtn.disabled=true;
+      revealed=true;checkBtn.disabled=true;checkBtn.textContent='Comprobado';
       const v=selected.values,d=differences(v),pa=isArithmetic(d);
       const grid=$('diffGrid');grid.textContent='';
       d.forEach((value,i)=>{
@@ -579,15 +554,11 @@
       $('reason').textContent=pa
         ?'Todas las diferencias consecutivas son '+signed(d[0])+'. Como son iguales, la sucesión es una progresión aritmética.'
         :'Las diferencias son '+d.map(signed).join(', ')+'. No son todas iguales; por eso la sucesión no es una progresión aritmética, aunque sus términos puedan aumentar o disminuir.';
-      const feedback=$('feedback');feedback.className='feedback';
-      if(choice===null)feedback.textContent='Compara esta comprobación con los cálculos de los estudiantes.';
-      else if(choice===pa){feedback.classList.add('correct');feedback.textContent='¡Bien! La clasificación de la clase fue correcta.';}
-      else{feedback.classList.add('wrong');feedback.textContent='Revisemos: compara las cuatro diferencias, no solo la primera.';}
-      $('placeholder').hidden=true;$('solution').hidden=false;
+      $('solution').hidden=false;
       updateResultsWindow();
       $('status').textContent=completed>=CHALLENGE_COUNT
-        ?'🏆 ¡Actividad completada! Cada estudiante resolvió cuatro retos distintos.'
-        :'✅ ¡Comprobado! Puedes girar otra vez para elegir cuatro estudiantes nuevos.';
+        ?'Actividad completada.'
+        :'Comprobado.';
     }
     function reset(){
       if(spinning)return;
@@ -600,9 +571,9 @@
       spinBtn.disabled=false;$('centerSpin').disabled=false;
       spinBtn.textContent='🎲 ¡Girar la ruleta!';
       $('challengeHeading').textContent='🎯 Reto por descubrir';$('challengeNumber').textContent='ESPERANDO GIRO';
-      $('sequenceLabel').textContent='¡Una nueva sucesión te espera!';
+      $('sequenceLabel').textContent='Sucesión';
       $('sequence').className='empty';$('sequence').textContent='¡Haz girar la ruleta para comenzar!';
-      $('status').textContent='✨ ¡15 giros, 4 estudiantes por giro y 4 participaciones por persona!';
+      $('status').textContent='Lista para girar.';
     }
     function downloadRegistry(){
       if(!history.length)return;
@@ -618,7 +589,6 @@
     }
     spinBtn.addEventListener('click',spin);$('centerSpin').addEventListener('click',spin);
     checkBtn.addEventListener('click',reveal);
-    yesBtn.addEventListener('click',()=>choose(true));noBtn.addEventListener('click',()=>choose(false));
     resetBtn.addEventListener('click',()=>{if(completed===0||confirm('¿Reiniciar los giros? Se borrarán los nombres y retos ya asignados.'))reset();});
     $('exportBtn').addEventListener('click',downloadRegistry);
     $('popoutBtn').addEventListener('click',openResultsWindow);
